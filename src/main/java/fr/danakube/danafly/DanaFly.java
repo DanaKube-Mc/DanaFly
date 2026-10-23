@@ -14,8 +14,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import fr.danakube.danafly.aesthetic.ActionBarAPI;
-import fr.danakube.danafly.aesthetic.ClipAPI;
 import fr.danakube.danafly.aesthetic.TitleAPI;
+import fr.danakube.danafly.hook.PlaceholderAPIHook;
 import fr.danakube.danafly.aesthetic.particle.Particles;
 import fr.danakube.danafly.command.CommandManager;
 import fr.danakube.danafly.fly.FlightManager;
@@ -140,8 +140,8 @@ public class DanaFly extends JavaPlugin {
 		TitleAPI.initialize(this);
 		
 		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-			Console.info("Initializing ClipAPI");
-			ClipAPI.initialize(this);
+			Console.info("Initializing PlaceholderAPI Hook (danafly & tempfly)");
+			PlaceholderAPIHook.initialize(this);
 		}
 	}
 	

@@ -185,7 +185,10 @@ public class SuperiorHook extends SkyblockHook implements Listener {
 
 	@Override
 	public boolean isIslandMember(UUID playerId, IslandWrapper island) {
-		return ((Island) island).isMember(superior.getPlayers().getSuperiorPlayer(playerId));
+		if (island == null || island.getRawIsland() == null) {
+			return false;
+		}
+		return ((Island) island.getRawIsland()).isMember(superior.getPlayers().getSuperiorPlayer(playerId));
 	}
 
 	@Override
