@@ -60,6 +60,51 @@ public class PlaceholderAPIHook {
                 return p.isOnline() && plugin.getFlightManager().getUser(p) != null
                         ? plugin.getFlightManager().getUser(p).getTagPlaceholder()
                         : "";
+            case "max-time":
+            case "max_time": {
+                double max = plugin.getTimeManager().getMaxTime(p.getUniqueId());
+                return max == -1 ? "-1" : String.valueOf((long) max);
+            }
+            case "max-time-formatted":
+            case "max_time_formatted": {
+                double max = plugin.getTimeManager().getMaxTime(p.getUniqueId());
+                if (max == -1) {
+                    return fr.danakube.danafly.util.V.infinity != null ? fr.danakube.danafly.util.V.infinity : "Illimité";
+                }
+                return plugin.getTimeManager().regexString("{FORMATTED_TIME}", max);
+            }
+            case "time-ratio":
+            case "time_ratio": {
+                double max = plugin.getTimeManager().getMaxTime(p.getUniqueId());
+                double current = plugin.getTimeManager().getTime(p.getUniqueId());
+                String curFmt = plugin.getTimeManager().regexString("{FORMATTED_TIME}", current);
+                if (max == -1) {
+                    String inf = fr.danakube.danafly.util.V.infinity != null ? fr.danakube.danafly.util.V.infinity : "Illimité";
+                    return curFmt + " / " + inf;
+                }
+                String maxFmt = plugin.getTimeManager().regexString("{FORMATTED_TIME}", max);
+                return curFmt + " / " + maxFmt;
+            }
+            case "time-percent":
+            case "time_percent": {
+                double max = plugin.getTimeManager().getMaxTime(p.getUniqueId());
+                double current = plugin.getTimeManager().getTime(p.getUniqueId());
+                if (max <= 0) {
+                    return "100%";
+                }
+                long pct = Math.min(100, Math.round((current / max) * 100.0));
+                return pct + "%";
+            }
+            case "time-remaining-reserve":
+            case "time_remaining_reserve": {
+                double max = plugin.getTimeManager().getMaxTime(p.getUniqueId());
+                if (max == -1) {
+                    return "-1";
+                }
+                double current = plugin.getTimeManager().getTime(p.getUniqueId());
+                double remaining = max - current;
+                return remaining <= 0 ? "0" : String.valueOf((long) remaining);
+            }
             default:
                 return null;
         }
