@@ -141,14 +141,17 @@ general:
   time:
     # If true players can send eachother time as if it were a currency.
     payable: true
-    # Here you can set the maximum time players can have in their balance. -1 for no limit.
+    # Configuration de la réserve maximale de vol
     max:
-      # The base maximum time in seconds applied to everyone.
-      base: -1
-      # Optionally you can include permission groups for a different max time.
-      # The groups listed below will override the global base defined above.
-      # If a player inherits more than 1 group the highest value will always be used.
-      # The permission is "tempfly.max.[group]"
+      # Limite par défaut pour tous les joueurs (ex: 3h, 180m, 10800s, ou -1 pour illimité)
+      base: 3h
+      # Limites par groupes de permissions (permission: danafly.max.<nom_du_groupe>)
+      # Si un joueur a plusieurs permissions, la limite la plus avantageuse (la plus haute ou -1) est appliquée.
+      groups:
+        vip: 5h
+        mvp: 10h
+        elite: 24h
+        infinite: -1
       groups:
         # member: 60
         # vip: 120

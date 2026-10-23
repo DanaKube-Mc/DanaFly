@@ -45,6 +45,11 @@ public class V {
 	timeSetSelf,
 	timeMaxOther,
 	timeMaxSelf,
+	maxReachedSelf,
+	maxReachedOther,
+	maxPartialPaySender,
+	maxPartialPayReceiver,
+	maxPartialGiveAdmin,
 	timeDecayLost,
 	timeFormat,
 	timePurchased,
@@ -232,6 +237,11 @@ public class V {
 		timeSetSelf			= st(C.LANG, "general.time.set_self");
 		timeMaxOther		= st(C.LANG, "general.time.max_other");
 		timeMaxSelf			= st(C.LANG, "general.time.max_self");
+		maxReachedSelf		= st(C.LANG, "general.time.max.reached_self", "{PREFIX} <red>Vous avez atteint votre réserve maximale de vol (<gold>{MAX_TIME}</gold>).");
+		maxReachedOther		= st(C.LANG, "general.time.max.reached_other", "{PREFIX} <red>{PLAYER} a atteint sa réserve maximale de vol (<gold>{MAX_TIME}</gold>).");
+		maxPartialPaySender = st(C.LANG, "general.time.max.partial_pay_sender", "{PREFIX} <yellow>{PLAYER} ne pouvait recevoir que <gold>{ACCEPTED_TIME}</gold> (limite: {MAX_TIME}). Les <gold>{REFUND_TIME}</gold> restants vous ont été conservés.");
+		maxPartialPayReceiver = st(C.LANG, "general.time.max.partial_pay_receiver", "{PREFIX} <green>Vous avez reçu <gold>{ACCEPTED_TIME}</gold> de {PLAYER}. Votre réserve maximale (<gold>{MAX_TIME}</gold>) est désormais atteinte !");
+		maxPartialGiveAdmin = st(C.LANG, "general.time.max.partial_give_admin", "{PREFIX} <yellow>{PLAYER} a atteint sa limite (<gold>{MAX_TIME}</gold>). Seuls <gold>{ACCEPTED_TIME}</gold> ont été attribués sur les <gold>{REQUESTED_TIME}</gold> demandés. Utilisez <white>-force</white> pour outrepasser.");
 		timeDecayLost		= st(C.LANG, "general.time.decay");
 		timeFormat			= st(C.LANG, "general.time.format");
 		timePurchased		= st(C.LANG, "general.time.purchased");
@@ -404,11 +414,13 @@ public class V {
 				}
 			}
 		}
-		maxTimeBase = config.getDouble("general.time.max.base", -1);
+		String baseStr = config.getString("general.time.max.base", "-1");
+		maxTimeBase = fr.danakube.danafly.time.TimeParser.parseToSeconds(baseStr);
 		ConfigurationSection csMax = config.getConfigurationSection("general.time.max.groups");
 		if (csMax != null) {
 			for (String s: csMax.getKeys(false)) {
-				maxTimeGroups.put(s, config.getDouble("general.time.max.groups." + s));
+				String valStr = config.getString("general.time.max.groups." + s, "-1");
+				maxTimeGroups.put(s, fr.danakube.danafly.time.TimeParser.parseToSeconds(valStr));
 			}
 		}
 	}

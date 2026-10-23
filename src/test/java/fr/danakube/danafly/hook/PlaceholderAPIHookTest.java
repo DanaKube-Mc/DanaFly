@@ -77,4 +77,27 @@ public class PlaceholderAPIHookTest {
 
         assertThat(danaRes).isEqualTo(tempRes);
     }
+
+    @Test
+    @DisplayName("Should resolve all max time and reserve placeholders")
+    void shouldResolveMaxTimePlaceholders() {
+        PlaceholderAPIHook.initialize(plugin);
+        fr.danakube.danafly.util.V.maxTimeBase = 10800.0; // 3h
+        fr.danakube.danafly.util.V.maxTimeGroups.clear();
+
+        PlayerMock player = server.addPlayer("ReserveTester");
+        plugin.getFlightManager().getUser(player).setTime(5400.0); // 1h30m (50%)
+
+        assertThat(PlaceholderAPIHook.resolvePlaceholder(player, "max_time")).isEqualTo("10800");
+        assertThat(PlaceholderAPIHook.resolvePlaceholder(player, "max_time_formatted")).isNotNull();
+        assertThat(PlaceholderAPIHook.resolvePlaceholder(player, "time_percent")).isEqualTo("50%");
+        assertThat(PlaceholderAPIHook.resolvePlaceholder(player, "time_ratio")).contains("/");
+        assertThat(PlaceholderAPIHook.resolvePlaceholder(player, "time_remaining_reserve")).isEqualTo("5400");
+
+        // Bypass / unlimited player
+        PlayerMock admin = server.addPlayer("AdminReserve");
+        admin.setOp(true);
+        assertThat(PlaceholderAPIHook.resolvePlaceholder(admin, "max_time")).isEqualTo("-1");
+        assertThat(PlaceholderAPIHook.resolvePlaceholder(admin, "time_remaining_reserve")).isEqualTo("-1");
+    }
 }

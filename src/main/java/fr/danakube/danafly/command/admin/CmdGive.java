@@ -28,22 +28,28 @@ public class CmdGive extends TimeCommand {
 			U.m(s, V.invalidPermission);
 			return;
 		}
-		if (args.length < 3) {
-			U.m(s, U.cc("&c/tf give [player] [amount]"));
+
+		boolean force = hasForceFlag(args);
+		String[] cleanArgsArr = stripForceFlag(args);
+
+		if (cleanArgsArr.length < 3) {
+			U.m(s, U.cc("&c/df give [player] [amount] [-force|-f]"));
 			return;
 		}
 		
 		@SuppressWarnings("deprecation")
-		OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
+		OfflinePlayer p = Bukkit.getOfflinePlayer(cleanArgsArr[1]);
 		if (p == null || (p != null && !p.isOnline() && !p.hasPlayedBefore())) {
-			U.m(s, V.invalidPlayer.replaceAll("\\{PLAYER}", args[1]));
+			U.m(s, V.invalidPlayer.replaceAll("\\{PLAYER}", cleanArgsArr[1]));
 			return;
 		}
-		double amount = quantifyArguments(s, 2);
+		double amount = quantifyArguments(s, cleanArgsArr, 2);
 		if (amount <= 0) {
 			return;
 		}
-		new AsyncTimeParameters(tempfly, this, s, p, amount).runAsync();
+		AsyncTimeParameters params = new AsyncTimeParameters(tempfly, this, s, p, amount);
+		params.setForce(force);
+		params.runAsync();
 	}
 
 	@Override
@@ -60,20 +66,38 @@ public class CmdGive extends TimeCommand {
 		OfflinePlayer p = parameters.getTarget();
 		double currentTime = parameters.getCurrentTime();
 		double amount = parameters.getAmount();
-		if (maxTime > -1 && (currentTime + amount > maxTime)) {
-			U.m(s, manager.regexString(V.timeMaxOther, amount)
-					.replaceAll("\\{PLAYER}", p.getName()));
-			U.m(p, V.timeMaxSelf);
-			
-			amount = maxTime - currentTime;
-			if (amount <= 0) {
+
+		if (!parameters.isForce() && maxTime > -1) {
+			if (currentTime >= maxTime) {
+				U.m(s, manager.regexString(V.maxPartialGiveAdmin != null ? V.maxPartialGiveAdmin : V.timeMaxOther, maxTime)
+						.replaceAll("\\{PLAYER}", p.getName() != null ? p.getName() : "")
+						.replaceAll("\\{MAX_TIME}", manager.regexString("{FORMATTED_TIME}", maxTime))
+						.replaceAll("\\{ACCEPTED_TIME}", manager.regexString("{FORMATTED_TIME}", 0))
+						.replaceAll("\\{REQUESTED_TIME}", manager.regexString("{FORMATTED_TIME}", amount)));
 				return;
 			}
+			if (currentTime + amount > maxTime) {
+				double accepted = maxTime - currentTime;
+				double requested = amount;
+				parameters.setAmount(accepted);
+				amount = accepted;
+
+				U.m(s, manager.regexString(V.maxPartialGiveAdmin != null ? V.maxPartialGiveAdmin : V.timeMaxOther, maxTime)
+						.replaceAll("\\{PLAYER}", p.getName() != null ? p.getName() : "")
+						.replaceAll("\\{MAX_TIME}", manager.regexString("{FORMATTED_TIME}", maxTime))
+						.replaceAll("\\{ACCEPTED_TIME}", manager.regexString("{FORMATTED_TIME}", accepted))
+						.replaceAll("\\{REQUESTED_TIME}", manager.regexString("{FORMATTED_TIME}", requested)));
+				if (p.isOnline()) {
+					U.m((Player)p, manager.regexString(V.maxReachedSelf, maxTime)
+							.replaceAll("\\{MAX_TIME}", manager.regexString("{FORMATTED_TIME}", maxTime)));
+				}
+			}
 		}
+
 		manager.addTime(parameters.getTarget().getUniqueId(), parameters);
 		if (p != s) {
 			U.m(s, manager.regexString(V.timeGivenOther, amount)
-					.replaceAll("\\{PLAYER}", p.getName()));
+					.replaceAll("\\{PLAYER}", p.getName() != null ? p.getName() : ""));
 		}
 		if (p.isOnline()) {
 			U.m((Player)p, manager.regexString(V.timeGivenSelf, amount));	

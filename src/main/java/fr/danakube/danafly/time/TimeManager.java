@@ -100,7 +100,7 @@ public class TimeManager implements Listener {
 		double bal = user == null ? parameters.getCurrentTime() : user.getTime();
 		// This line prevents an overflow to -Double.MAX_VALUE.
 		double remaining = (((bal+seconds) >= bal) ? (bal+seconds) : Double.MAX_VALUE);
-		if (maxTime > -1 && remaining > maxTime) {
+		if (!parameters.isForce() && maxTime > -1 && remaining > maxTime) {
 			remaining = maxTime;
 		}
 		
@@ -128,7 +128,7 @@ public class TimeManager implements Listener {
 		if (maxTime == -999) {
 			return;
 		}
-		if (maxTime > -1 && seconds > maxTime) {
+		if (!parameters.isForce() && maxTime > -1 && seconds > maxTime) {
 			seconds = maxTime;
 		}
 		
@@ -146,56 +146,54 @@ public class TimeManager implements Listener {
 	
 	
 	public double getMaxTime(UUID u) {
-		Console.debug("-- Get max time --");
 		Player p = Bukkit.getPlayer(u);
-		double highest = 0;
-		boolean hasGroup = false;
 		if (p != null && p.isOnline()) {
-			Console.debug("--| Player is online...");
-			for (Entry<String, Double> group: V.maxTimeGroups.entrySet()) {
+			if (p.isOp() || U.hasPermission(p, "danafly.max.bypass")) {
+				return -1;
+			}
+			double highest = V.maxTimeBase;
+			for (Entry<String, Double> group : V.maxTimeGroups.entrySet()) {
 				double current = group.getValue();
-				// If the group is less than the highest found so far continue.
-				if (current < highest && current > -1) {
-					continue;
-				}
-				if (p.hasPermission("tempfly.max." + group.getKey())) {
-					Console.debug("--| Player has group: " + group.getKey() + " | " + group.getValue());
-					hasGroup = true;
+				if (U.hasPermission(p, "danafly.max." + group.getKey())) {
 					if (current == -1) {
-						return current;
-					} else {
+						return -1;
+					}
+					if (highest != -1 && current > highest) {
 						highest = current;
 					}
 				}
 			}
-		} else {
-			Console.debug("--| Player is offline...");
-			if (!tempfly.getHookManager().hasPermissions()) {
-				Console.debug("--|> No vault permissions, We cannot check max time!");
-				// We are returning -999 to indicate something is wrong and we cannot check the players max balance.
-				// In this case it is because the server does not have Vault and i can't check the offline players permissions.
-				return -999;
-			}
-			OfflinePlayer op = Bukkit.getOfflinePlayer(u);
-			Permission perms = tempfly.getHookManager().getPermissions();
-			for (Entry<String, Double> group: V.maxTimeGroups.entrySet()) {
-				double current = group.getValue();
-				if (current < highest && current > -1) {
-					continue;
-				}
-				if (op.isOp() || perms.playerHas(Bukkit.getWorlds().get(0).getName(), op, "tempfly.max." + group.getKey())) {
-					Console.debug("--| Player has group: " + group.getKey() + " | " + group.getValue());
-					hasGroup = true;
-					if (current == -1) {
-						return current;
-					} else {
-						highest = current;
-					}
-				}
-			}
+			return highest;
 		}
-		Console.debug("--|> Final value: " + (hasGroup ? highest : V.maxTimeBase));
-		return hasGroup ? highest : V.maxTimeBase;
+
+		// Offline player handling
+		OfflinePlayer op = Bukkit.getOfflinePlayer(u);
+		if (op.isOp()) {
+			return -1;
+		}
+		if (tempfly.getHookManager().hasPermissions()) {
+			Permission perms = tempfly.getHookManager().getPermissions();
+			String world = Bukkit.getWorlds().isEmpty() ? "world" : Bukkit.getWorlds().get(0).getName();
+			if (perms.playerHas(world, op, "danafly.max.bypass") || perms.playerHas(world, op, "tempfly.max.bypass")) {
+				return -1;
+			}
+			double highest = V.maxTimeBase;
+			for (Entry<String, Double> group : V.maxTimeGroups.entrySet()) {
+				double current = group.getValue();
+				if (perms.playerHas(world, op, "danafly.max." + group.getKey()) || perms.playerHas(world, op, "tempfly.max." + group.getKey())) {
+					if (current == -1) {
+						return -1;
+					}
+					if (highest != -1 && current > highest) {
+						highest = current;
+					}
+				}
+			}
+			return highest;
+		}
+
+		// Fallback when offline without Vault permissions
+		return V.maxTimeBase;
 	}
 	
 	

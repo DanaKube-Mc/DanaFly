@@ -62,9 +62,34 @@ public abstract class TimeCommand extends TempFlyCommand implements AsyncTimeExe
 		return s.length()-1;
 	}
 	
+	public boolean hasForceFlag(String[] args) {
+		if (args == null) return false;
+		for (String arg : args) {
+			if (arg.equalsIgnoreCase("-force") || arg.equalsIgnoreCase("-f")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public String[] stripForceFlag(String[] args) {
+		if (args == null) return new String[0];
+		List<String> list = new ArrayList<>();
+		for (String arg : args) {
+			if (!arg.equalsIgnoreCase("-force") && !arg.equalsIgnoreCase("-f")) {
+				list.add(arg);
+			}
+		}
+		return list.toArray(new String[0]);
+	}
+
 	public double quantifyArguments(CommandSender s, int skip) {
+		return quantifyArguments(s, getArguments(), skip);
+	}
+
+	public double quantifyArguments(CommandSender s, String[] customArgs, int skip) {
 		double seconds = 0;
-		String[] args = skip > 0 ? cleanArgs(getArguments(), skip) : getArguments();
+		String[] args = skip > 0 ? cleanArgs(customArgs, skip) : customArgs;
 		for (int i = 0; i < args.length; i++) {
 			TimeUnit unit;
 			String parse;

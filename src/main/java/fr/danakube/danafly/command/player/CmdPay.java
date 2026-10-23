@@ -78,21 +78,54 @@ public class CmdPay extends TimeCommand {
 		
 		TimeManager manager = tempfly.getTimeManager();
 		OfflinePlayer p = parameters.getTarget();
-		double amount = parameters.getAmount();
-		if ((maxTime > -1) && (manager.getTime(p.getUniqueId()) + amount >= maxTime)) {
-			U.m(s, manager.regexString(V.timeMaxOther, amount)
-					.replaceAll("\\{PLAYER}", p.getName()));
-			U.m(p, V.timeMaxSelf);
+		double targetCurrentTime = manager.getTime(p.getUniqueId());
+		double requestedAmount = parameters.getAmount();
+
+		if (maxTime > -1 && targetCurrentTime >= maxTime) {
+			String maxFormatted = fr.danakube.danafly.time.TimeParser.formatDuration(maxTime);
+			U.m(s, V.maxReachedOther.replace("{PLAYER}", p.getName() != null ? p.getName() : "Inconnu")
+					.replace("{MAX_TIME}", maxFormatted));
+			U.m(p, V.maxReachedSelf.replace("{MAX_TIME}", maxFormatted));
 			return;
 		}
-		
-		manager.removeTime(((Player)s).getUniqueId(), parameters);
+
+		double acceptedAmount = requestedAmount;
+		double refundAmount = 0.0;
+		boolean isPartial = false;
+
+		if (maxTime > -1 && (targetCurrentTime + requestedAmount > maxTime)) {
+			acceptedAmount = maxTime - targetCurrentTime;
+			refundAmount = requestedAmount - acceptedAmount;
+			isPartial = true;
+		}
+
+		// Set accepted amount for debit and credit
+		parameters.setAmount(acceptedAmount);
+		manager.removeTime(((Player) s).getUniqueId(), parameters);
 		manager.addTime(p.getUniqueId(), parameters);
-		U.m(s, manager.regexString(V.timeSentOther, amount)
-				.replaceAll("\\{PLAYER}", p.getName()));
-		if (p.isOnline()) {
-			U.m((Player)p, manager.regexString(V.timeSentSelf, amount)
-					.replaceAll("\\{PLAYER}", s.getName()));	
+
+		if (isPartial) {
+			String maxFormatted = fr.danakube.danafly.time.TimeParser.formatDuration(maxTime);
+			String acceptedFormatted = fr.danakube.danafly.time.TimeParser.formatDuration(acceptedAmount);
+			String refundFormatted = fr.danakube.danafly.time.TimeParser.formatDuration(refundAmount);
+
+			U.m(s, V.maxPartialPaySender.replace("{PLAYER}", p.getName() != null ? p.getName() : "Inconnu")
+					.replace("{ACCEPTED_TIME}", acceptedFormatted)
+					.replace("{REFUND_TIME}", refundFormatted)
+					.replace("{MAX_TIME}", maxFormatted));
+
+			if (p.isOnline()) {
+				U.m((Player) p, V.maxPartialPayReceiver.replace("{PLAYER}", s.getName())
+						.replace("{ACCEPTED_TIME}", acceptedFormatted)
+						.replace("{MAX_TIME}", maxFormatted));
+			}
+		} else {
+			U.m(s, manager.regexString(V.timeSentOther, acceptedAmount)
+					.replaceAll("\\{PLAYER}", p.getName() != null ? p.getName() : "Inconnu"));
+			if (p.isOnline()) {
+				U.m((Player) p, manager.regexString(V.timeSentSelf, acceptedAmount)
+						.replaceAll("\\{PLAYER}", s.getName()));
+			}
 		}
 	}
 

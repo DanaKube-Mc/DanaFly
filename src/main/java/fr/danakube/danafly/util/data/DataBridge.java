@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -57,7 +58,7 @@ public class DataBridge implements DataFileHolder {
 	// A list of pointers that tell the asynchronous batch manager to save the data they point to
 	// if it exists in the list of changes.
 
-	private List<DataPointer> manualCommit = new ArrayList<>();
+	private List<DataPointer> manualCommit = new CopyOnWriteArrayList<>();
 	
 	public MysqlDataSource getDataSource() {
 		return dataSource;

@@ -31,6 +31,7 @@ public class AsyncTimeParameters implements Runnable {
 	
 	private double maxTime;
 	private double currentTime;
+	private boolean force;
 	
 	
 	public void runAsync() {
@@ -59,8 +60,16 @@ public class AsyncTimeParameters implements Runnable {
 		return maxTime;
 	}
 
+	public void setMaxTime(double maxTime) {
+		this.maxTime = maxTime;
+	}
+
 	public double getCurrentTime() {
 		return currentTime;
+	}
+
+	public void setCurrentTime(double currentTime) {
+		this.currentTime = currentTime;
 	}
 	
 	public CommandSender getSender() {
@@ -73,5 +82,17 @@ public class AsyncTimeParameters implements Runnable {
 	
 	public double getAmount() {
 		return amount;
+	}
+
+	public void setAmount(double amount) {
+		this.amount = amount;
+	}
+
+	public boolean isForce() {
+		return force;
+	}
+
+	public void setForce(boolean force) {
+		this.force = force;
 	}
 } 
