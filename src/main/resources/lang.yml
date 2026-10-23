@@ -53,6 +53,12 @@ general:
     set_self: "{PREFIX} &aYour time was set to {FORMATTED_TIME}&a."
     max_other: "{PREFIX} &f{PLAYER} &chas reached the maximum allowed time&c!"
     max_self: "{PREFIX} &cYou have reached the maximum allowed time&c!"
+    max:
+      reached_self: "{PREFIX} <red>Vous avez atteint votre réserve maximale de vol (<gold>{MAX_TIME}</gold>)."
+      reached_other: "{PREFIX} <red>{PLAYER} a atteint sa réserve maximale de vol (<gold>{MAX_TIME}</gold>)."
+      partial_pay_sender: "{PREFIX} <yellow>{PLAYER} ne pouvait recevoir que <gold>{ACCEPTED_TIME}</gold> (limite: {MAX_TIME}). Les <gold>{REFUND_TIME}</gold> restants vous ont été conservés."
+      partial_pay_receiver: "{PREFIX} <green>Vous avez reçu <gold>{ACCEPTED_TIME}</gold> de {PLAYER}. Votre réserve maximale (<gold>{MAX_TIME}</gold>) est désormais atteinte !"
+      partial_give_admin: "{PREFIX} <yellow>{PLAYER} a atteint sa limite (<gold>{MAX_TIME}</gold>). Seuls <gold>{ACCEPTED_TIME}</gold> ont été attribués sur les <gold>{REQUESTED_TIME}</gold> demandés. Utilisez <white>-force</white> pour outrepasser."
     decay: "{PREFIX} &cYou lost {FORMATTED_TIME} &cfor inactivity!"
     first_join: "{PREFIX} &aYou recieved {FORMATTED_TIME} &aof flight time. Fly with &f/tf&a."
     daily_login: "{PREFIX} &aYou recieved a daily bonus of {FORMATTED_TIME}&a!"
