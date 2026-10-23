@@ -100,7 +100,7 @@ public class TimeManager implements Listener {
 		double bal = user == null ? parameters.getCurrentTime() : user.getTime();
 		// This line prevents an overflow to -Double.MAX_VALUE.
 		double remaining = (((bal+seconds) >= bal) ? (bal+seconds) : Double.MAX_VALUE);
-		if (maxTime > -1 && remaining > maxTime) {
+		if (!parameters.isForce() && maxTime > -1 && remaining > maxTime) {
 			remaining = maxTime;
 		}
 		
@@ -128,7 +128,7 @@ public class TimeManager implements Listener {
 		if (maxTime == -999) {
 			return;
 		}
-		if (maxTime > -1 && seconds > maxTime) {
+		if (!parameters.isForce() && maxTime > -1 && seconds > maxTime) {
 			seconds = maxTime;
 		}
 		
