@@ -134,10 +134,18 @@ public class CmdFly extends TempFlyCommand {
 
 	@Override
 	public List<String> getPotentialArguments(CommandSender s) {
-		if (args.length == 2 && U.hasPermission(s, "tempfly.toggle.other")) {
-			return getPlayerArguments(args[1]);
-		} else if (args.length == 2 && U.hasPermission(s, "tempfly.toggle.self")) {
-			return Arrays.asList(((Player)s).getName());
+		if (args.length == 1) {
+			List<String> list = new ArrayList<>(tempfly.getCommandManager().getToggleCompletions(false));
+			if (U.hasPermission(s, "danafly.toggle.other")) {
+				list.addAll(getPlayerArguments(args[0]));
+			}
+			return list;
+		} else if (args.length == 2) {
+			if (U.hasPermission(s, "danafly.toggle.other")) {
+				return getPlayerArguments(args[1]);
+			} else if (U.hasPermission(s, "danafly.toggle.self") && s instanceof Player) {
+				return Arrays.asList(((Player)s).getName());
+			}
 		}
 		return new ArrayList<>();
 	}

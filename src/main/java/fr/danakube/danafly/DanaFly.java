@@ -76,6 +76,8 @@ public class DanaFly extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		Console.setLogger(this.getLogger());
+
+		fr.danakube.danafly.util.data.DataMigrationManager.checkAndPerformMigration(this);
 		
 		Files.createFiles(this);
 		V.loadValues();

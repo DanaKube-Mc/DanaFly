@@ -50,8 +50,24 @@ public class CommandManager {
 		this.tempfly = tempfly;
 		executor = new TempFlyExecutor(this);
 		tab = new TempFlyTabCompleter(this);
-		tempfly.getCommand("tempfly").setExecutor(executor);
-		tempfly.getCommand("tempfly").setTabCompleter(tab);
+
+		if (tempfly.getCommand("danafly") != null) {
+			tempfly.getCommand("danafly").setExecutor(executor);
+			tempfly.getCommand("danafly").setTabCompleter(tab);
+		}
+		if (tempfly.getCommand("tempfly") != null) {
+			tempfly.getCommand("tempfly").setExecutor(executor);
+			tempfly.getCommand("tempfly").setTabCompleter(tab);
+		}
+		if (tempfly.getCommand("fly") != null) {
+			tempfly.getCommand("fly").setExecutor((sender, command, label, args) -> {
+				new CmdFly(tempfly, args).executeAs(sender);
+				return true;
+			});
+			tempfly.getCommand("fly").setTabCompleter((sender, command, label, args) -> {
+				return new CmdFly(tempfly, args).getPotentialArguments(sender);
+			});
+		}
 		
 		for (CommandType type: CommandType.values()) {
 			if (!type.isEnabled(tempfly)) {

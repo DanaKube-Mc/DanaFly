@@ -88,7 +88,19 @@ public class U {
 	}
 	
 	public static boolean hasPermission(CommandSender s, String perm){
-		return !isPlayer(s) || s.hasPermission(perm);
+		if (!isPlayer(s)) {
+			return true;
+		}
+		if (perm == null || perm.isEmpty()) {
+			return true;
+		}
+		String cleanNode = perm.startsWith("danafly.") ? perm.substring("danafly.".length())
+				: perm.startsWith("tempfly.") ? perm.substring("tempfly.".length())
+				: perm;
+		if (s.hasPermission("danafly." + cleanNode)) {
+			return true;
+		}
+		return s.hasPermission("tempfly." + cleanNode);
 	}
 	
 	public static String locToString(Location loc) {
