@@ -1,0 +1,12 @@
+name: DanaFly
+main: fr.danakube.danafly.DanaFly
+version: '4.0.0'
+api-version: '1.21'
+author: DanaKube
+softdepend: [Vault, PlaceholderAPI, WorldGuard, WorldEdit, SuperiorSkyblock2]
+commands:
+  danafly:
+    description: Commande principale de gestion du vol temporaire
+    aliases: [df, tempfly, tf]
+  fly:
+    description: Activer ou désactiver le vol temporaire
