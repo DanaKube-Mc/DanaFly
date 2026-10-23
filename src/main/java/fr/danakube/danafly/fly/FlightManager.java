@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -108,8 +109,8 @@ public class FlightManager implements Listener, Reloadable {
 	 * 
 	 */
 
-	private final Map<UUID, FlightUser> users = new HashMap<>();
-	private final Map<UUID, UserLoader> loaders = new HashMap<>();
+	private final Map<UUID, FlightUser> users = new ConcurrentHashMap<>();
+	private final Map<UUID, UserLoader> loaders = new ConcurrentHashMap<>();
 
 	public synchronized boolean hasUser(Player p) {
 		return ((p != null) && users.containsKey(p.getUniqueId()))
@@ -140,7 +141,7 @@ public class FlightManager implements Listener, Reloadable {
 	}
 
 	public synchronized FlightUser[] getUsers() {
-		return users.values().toArray(new FlightUser[users.size()]);
+		return new ArrayList<>(users.values()).toArray(new FlightUser[0]);
 	}
 
 	/**
@@ -202,7 +203,9 @@ public class FlightManager implements Listener, Reloadable {
 	}
 
 	public synchronized void removeUser(Player p, boolean reload) {
-		removeUser(p.getUniqueId(), reload);
+		if (p != null) {
+			removeUser(p.getUniqueId(), reload);
+		}
 	}
 
 	public synchronized void removeUser(UUID u, boolean reload) {
@@ -219,8 +222,11 @@ public class FlightManager implements Listener, Reloadable {
 	 * Called on plugin disable, saves users and cleans up.
 	 */
 	public void onDisable() {
-		for (FlightUser user : getUsers()) {
-			removeUser(user.getPlayer(), true);
+		List<FlightUser> copy = new ArrayList<>(users.values());
+		for (FlightUser user : copy) {
+			if (user != null && user.getPlayer() != null) {
+				removeUser(user.getPlayer(), true);
+			}
 		}
 	}
 
