@@ -68,25 +68,23 @@ public class U {
 	}
 	
 	public static void m(CommandSender p, String s) {
-		if (s == null || s.equals(PREFIX) || s.length() == 0) {
+		if (p == null || s == null || s.equals(PREFIX) || s.isEmpty()) {
 			return;
 		}
-
-		p.sendMessage(s.replace(PREFIX, V.prefix));
+		fr.danakube.danafly.text.TextManager.send(p, s);
 	}
 	
 	public static void m(OfflinePlayer p, String s) {
-		if (p.isOnline()) {
+		if (p != null && p.isOnline()) {
 			m((Player) p, s);
 		}
 	}
 	
 	public static void m(Player p, String s) {
-		if (s == null || s.isEmpty() || s.equals(V.prefix) || s.equals(PREFIX)) {
+		if (p == null || s == null || s.isEmpty() || s.equals(V.prefix) || s.equals(PREFIX)) {
 			return;
 		}
-
-		p.sendMessage(s.replace(PREFIX, V.prefix));
+		fr.danakube.danafly.text.TextManager.send(p, s);
 	}
 	
 	public static boolean hasPermission(CommandSender s, String perm){
